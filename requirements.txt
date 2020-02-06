@@ -1,0 +1,11 @@
+nose
+sphinx
+re
+MySQLdb
+configparser
+arpreq
+MySQLdb.cursors
+-e git://github.com/makerspacetoolkit/python-civicrm.git#egg=pythonmcivicrm
+urllib3.contrib.pyopenssl
+slacker
+
