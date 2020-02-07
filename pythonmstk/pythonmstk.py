@@ -37,7 +37,6 @@ class MstkServer:
       self.slack_enabled = config.get('slack','slack_enabled')
       self.slack_channel = config.get('slack','slack_channel')
       self.log_level = int(config.get('mstk', 'log_level'))
-      api_key_enabled = config.get('mstk','api_key_enabled') 
 
       hostname = config.get('dbconnect', 'host')
       username = config.get('dbconnect', 'user')
