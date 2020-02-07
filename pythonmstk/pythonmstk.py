@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# pythonmstk
 # python module that supports mstk daemmons
 # 
 # IMPORTANT: adjust myqsl server config to have a sizable timeout
@@ -35,10 +36,8 @@ class MstkServer:
       self.slack = Slacker(config.get('slack', 'slackapi'))
       self.slack_enabled = config.get('slack','slack_enabled')
       self.slack_channel = config.get('slack','slack_channel')
-      doord_host = config.get('doord', 'host')
-      doord_port = config.get('doord', 'port')
-      self.log_level = int(config.get('doord', 'log_level'))
-      api_key_enabled = config.get('doord','api_key_enabled') 
+      self.log_level = int(config.get('mstk', 'log_level'))
+      api_key_enabled = config.get('mstk','api_key_enabled') 
 
       hostname = config.get('dbconnect', 'host')
       username = config.get('dbconnect', 'user')
