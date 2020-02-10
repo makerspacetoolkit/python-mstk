@@ -1,17 +1,11 @@
 #!/usr/bin/python3
 # pythonmstk
 # python module that supports mstk daemmons
-# 
-# IMPORTANT: adjust myqsl server config to have a sizable timeout
-# otherwise application conncition will drop.
-# wait_timeout = 604800
-# interactive_timeout = 14400
 
 import sys,os
 import re
-import MySQLdb
-import MySQLdb.cursors
 import configparser
+from . import mydb
 import json
 import time
 import arpreq
@@ -39,23 +33,22 @@ class MstkServer:
       self.log_level = int(config.get('mstk', 'log_level'))
 
       hostname = config.get('dbconnect', 'host')
+      dbport = int(config.get('dbconnect', 'port'))
       username = config.get('dbconnect', 'user')
       password = config.get('dbconnect', 'passwd')
       database  = config.get('dbconnect', 'db')
       
-      api_key = config.get('mstk', 'api_key')
-      
-      db = MySQLdb.connect(host=hostname, 
+      db = mydb.disconnectSafeConnect(host=hostname,
+      port=dbport,
       user=username, 
       passwd=password, 
       db=database) 
 
-      db.autocommit(True)
-      self.cur = db.cursor(MySQLdb.cursors.DictCursor)
+      self.cur = db.cursor()
 
       self.civicrm = CiviCRM(civicrm_url, civicrm_site_key, civicrm_api_key, use_ssl=civicrm_ssl, timeout=10 )
       
-      daemon = secrets_file.rstrip("-secrets.py")
+      daemon = secrets_file.rstrip("-secrets.conf")
       
       # this log is also used for slack and it's #doorbot channel
       self.accesslogfile = ('/var/log/%s.access.log' % daemon)
@@ -276,14 +269,6 @@ class MstkServer:
          return {'error_code' :'x10'}
       else:
          requesting_ap = self.cur.fetchone()
-         #print('requesting ap is %s' % requesting_ap)
-         if not requesting_ap['dev'] or not requesting_ap['cmd']:
-            self.debug_message(self.log_level,0, "misconfigured accesspoint %s" % str(requesting_ap['id']))
-            error_code = 'x30' 
-            requesting_ap.update({
-               "error_code":str(error_code)
-            })
-            return requesting_ap
    
       if requesting_ap['ip_address'] == client_ip:
          # Ok, this is a legit ap.
