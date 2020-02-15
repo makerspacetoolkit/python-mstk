@@ -66,10 +66,16 @@ class MstkServer:
          logfile.write("\n")
          logfile.close()
    
-   
+   '''
+   logsearch is for slack-posting the first usage per day of an access point to a 
+   specific  lack channel. If  no slack_channel arg is passed, the default is used 
+   from the config.
+   '''
    
    def logsearch(self,entrydate, entryname, statuscode, slack_channel=None):
       if self.slack_enabled == 'True':
+         if slack_channel == None:
+            slack_channel = self.slack_channel
          today = time.strftime("%m/%d/%Y")
          currenttime  = time.strftime("%H:%M:%S")
          datevalue = None
@@ -80,13 +86,13 @@ class MstkServer:
                for names in dates.splitlines():
                   if entryname in names:
                      namevalue = 1
-                     #print ('the name %s is found' % entryname )
+                     print ('the name %s is found' % entryname )
                      return
          else:
             if not datevalue or not namevalue:
                 loglist = [entrydate,currenttime,entryname,statuscode]
                 logline = str(loglist).replace('[','').replace(']','').replace("'","")
-                self.slack.chat.post_message(slack_channel, logline, as_user=False)
+                self.slack.chat.post_message(str(slack_channel), logline, as_user=False)
    
    '''
        Retreive user's memeber status. Returns bool
@@ -264,7 +270,7 @@ class MstkServer:
    '''
    def ap_lookup(self,client_ip):
       requesting_mac = arpreq.arpreq(client_ip) 
-      if not self.cur.execute("SELECT * FROM civicrm_mstk_access_points WHERE mac_address = %s", (requesting_mac,)):
+      if not self.cur.execute("SELECT *, CAST(non_member_perdiem AS CHAR) AS non_member_perdiem,CAST(non_member_rate AS CHAR) AS non_member_rate,CAST(member_rate AS CHAR) AS member_rate FROM civicrm_mstk_access_points WHERE mac_address = %s", (requesting_mac,)):
          self.debug_message(self.log_level, 0, "UNAUTHORIZED AP REQUEST: by ip address %s with mac address %s" % (client_ip, requesting_mac))
          return {'error_code' :'x10'}
       else:
