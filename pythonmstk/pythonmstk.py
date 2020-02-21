@@ -107,8 +107,8 @@ class MstkServer:
        try:
           self.cur.execute("SELECT * FROM civicrm_membership WHERE contact_id = %s ORDER BY status_id ASC", (contact_id,))
           member = self.cur.fetchone()
-          # map CiviCRM member states to boolean
-          membership_status = 0 if int(member['status_id']) >= 3 else 1
+          # map CiviCRM member states to boolean, grace status is good
+          membership_status = 0 if int(member['status_id']) >= 4 else 1
        except:
           # no member record
           return 0
